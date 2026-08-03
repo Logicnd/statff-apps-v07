@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vortex07 — Staff Application</title>
+    <meta
+      name="description"
+      content="Apply for Trial Moderator on the Vortex07 Discord."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg0: #1a2332;
+        --bg1: #243447;
+        --bg2: #2f455c;
+        --ink: #e8eef5;
+        --muted: #9db0c5;
+        --line: #3d5a73;
+        --accent: #6db3e0;
+        --accent-deep: #3d8ec4;
+        --ok: #7dba6f;
+        --warn: #e0b45a;
+        --bad: #d67a7a;
+        --field: #152031;
+        --radius: 6px;
+        --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+        --font: "IBM Plex Sans", "Segoe UI", sans-serif;
+        --pixel: "Press Start 2P", monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+
+      body {
+        font-family: var(--font);
+        color: var(--ink);
+        background:
+          radial-gradient(1200px 600px at 10% -10%, #3a5f82 0%, transparent 55%),
+          radial-gradient(900px 500px at 100% 0%, #2a4a3a 0%, transparent 50%),
+          linear-gradient(180deg, #152031 0%, var(--bg0) 40%, #121a26 100%);
+        line-height: 1.5;
+      }
+
+      .wrap {
+        width: min(720px, calc(100% - 2rem));
+        margin: 2rem auto 3rem;
+      }
+
+      .hero {
+        margin-bottom: 1.25rem;
+      }
+
+      .brand {
+        font-family: var(--pixel);
+        font-size: clamp(0.85rem, 2.5vw, 1.05rem);
+        letter-spacing: 0.04em;
+        color: #f3f7fb;
+        text-shadow: 2px 2px 0 #0d1520;
+        margin: 0 0 0.75rem;
+      }
+
+      .hero h1 {
+        margin: 0 0 0.5rem;
+        font-size: clamp(1.45rem, 4vw, 1.9rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .hero p {
+        margin: 0;
+        color: var(--muted);
+        max-width: 38rem;
+      }
+
+      .trust {
+        margin: 1rem 0 0;
+        padding: 0.85rem 0.95rem;
+        border: 1px solid #3f6b4e;
+        border-radius: var(--radius);
+        background: rgba(125, 186, 111, 0.1);
+        color: #cfe6c8;
+        font-size: 0.9rem;
+      }
+
+      .trust strong {
+        color: #e8f6e4;
+      }
+
+      .trust ul {
+        margin: 0.45rem 0 0;
+        padding-left: 1.15rem;
+      }
+
+      .trust li {
+        margin: 0.2rem 0;
+      }
+
+      .trust a {
+        color: var(--accent);
+      }
+
+      .verify {
+        margin-top: 0.65rem;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+
+      .verify[data-bad="1"] {
+        color: var(--bad);
+      }
+
+      .hint {
+        margin: 0;
+        font-size: 0.82rem;
+        color: var(--muted);
+        font-weight: 400;
+      }
+
+      .privacy {
+        margin: 0;
+        padding: 0.75rem 0.85rem;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(0, 0, 0, 0.2);
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .panel {
+        background: linear-gradient(180deg, var(--bg1), #1e2d3f);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .setup {
+        border-bottom: 1px solid var(--line);
+        background: rgba(0, 0, 0, 0.18);
+        padding: 0.85rem 1rem;
+      }
+
+      .setup summary {
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--warn);
+        list-style: none;
+      }
+
+      .setup summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .setup-body {
+        margin-top: 0.75rem;
+        display: grid;
+        gap: 0.65rem;
+      }
+
+      .setup label {
+        display: grid;
+        gap: 0.35rem;
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .setup input {
+        width: 100%;
+        padding: 0.65rem 0.75rem;
+        border-radius: var(--radius);
+        border: 1px solid var(--line);
+        background: var(--field);
+        color: var(--ink);
+        font: inherit;
+      }
+
+      .setup-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .setup-hint {
+        margin: 0;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+
+      .progress {
+        display: flex;
+        gap: 0.4rem;
+        padding: 1rem 1rem 0;
+      }
+
+      .progress span {
+        flex: 1;
+        height: 4px;
+        border-radius: 99px;
+        background: var(--bg2);
+      }
+
+      .progress span[data-on="1"] {
+        background: linear-gradient(90deg, var(--accent-deep), var(--accent));
+      }
+
+      .step-label {
+        padding: 0.65rem 1rem 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+
+      form {
+        padding: 1rem;
+      }
+
+      .step {
+        display: none;
+        animation: rise 0.28s ease;
+      }
+
+      .step.active {
+        display: grid;
+        gap: 0.9rem;
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      .req {
+        margin: 0;
+        padding: 0.75rem 0.85rem;
+        border-left: 3px solid var(--accent);
+        background: rgba(109, 179, 224, 0.08);
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .req strong {
+        color: var(--ink);
+      }
+
+      label.field {
+        display: grid;
+        gap: 0.35rem;
+      }
+
+      label.field > span {
+        font-size: 0.92rem;
+        font-weight: 600;
+      }
+
+      label.field > span em {
+        font-style: normal;
+        color: var(--bad);
+      }
+
+      input[type="text"],
+      input[type="email"],
+      textarea,
+      select {
+        width: 100%;
+        padding: 0.7rem 0.8rem;
+        border-radius: var(--radius);
+        border: 1px solid var(--line);
+        background: var(--field);
+        color: var(--ink);
+        font: inherit;
+      }
+
+      textarea {
+        min-height: 110px;
+        resize: vertical;
+      }
+
+      input:focus,
+      textarea:focus,
+      select:focus {
+        outline: 2px solid rgba(109, 179, 224, 0.45);
+        outline-offset: 1px;
+        border-color: var(--accent);
+      }
+
+      .choices {
+        display: grid;
+        gap: 0.4rem;
+      }
+
+      .choice {
+        display: flex;
+        gap: 0.6rem;
+        align-items: flex-start;
+        padding: 0.55rem 0.7rem;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+      }
+
+      .choice:has(input:checked) {
+        border-color: var(--accent);
+        background: rgba(109, 179, 224, 0.12);
+      }
+
+      .choice input {
+        margin-top: 0.2rem;
+      }
+
+      .nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        justify-content: space-between;
+        margin-top: 0.4rem;
+        padding-top: 0.9rem;
+        border-top: 1px solid var(--line);
+      }
+
+      button {
+        font: inherit;
+        font-weight: 600;
+        border-radius: var(--radius);
+        border: 1px solid transparent;
+        padding: 0.7rem 1rem;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .btn-secondary {
+        background: transparent;
+        color: var(--ink);
+        border-color: var(--line);
+      }
+
+      .btn-primary {
+        background: linear-gradient(180deg, var(--accent), var(--accent-deep));
+        color: #071018;
+        border-color: #2f6f98;
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        filter: brightness(1.05);
+      }
+
+      .status {
+        min-height: 1.3rem;
+        margin: 0.4rem 0 0;
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .status.ok {
+        color: var(--ok);
+      }
+
+      .status.err {
+        color: var(--bad);
+      }
+
+      .done {
+        display: none;
+        padding: 2rem 1.25rem;
+        text-align: center;
+      }
+
+      .done.show {
+        display: block;
+        animation: rise 0.3s ease;
+      }
+
+      .done h2 {
+        margin: 0 0 0.5rem;
+        font-family: var(--pixel);
+        font-size: 0.85rem;
+        line-height: 1.6;
+      }
+
+      .done p {
+        margin: 0 auto;
+        max-width: 28rem;
+        color: var(--muted);
+      }
+
+      .foot {
+        margin-top: 0.9rem;
+        color: var(--muted);
+        font-size: 0.82rem;
+        text-align: center;
+      }
+
+      @media (max-width: 560px) {
+        .wrap {
+          width: min(100% - 1rem, 720px);
+          margin-top: 1rem;
+        }
+
+        .nav {
+          flex-direction: column-reverse;
+        }
+
+        .nav button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="hero">
+        <p class="brand">VORTEX07</p>
+        <h1>Staff application</h1>
+        <p>
+          Official Trial Moderator application for the Vortex07 Discord.
+          Full staff and admin come after trust — never from this form alone.
+        </p>
+        <div class="trust" role="note">
+          <strong>Safety — read this</strong>
+          <ul>
+            <li>
+              We will <strong>never</strong> ask for your Discord password, token,
+              email login code, backup codes, or QR login.
+            </li>
+            <li>
+              Your <strong>User ID</strong> is a public number (Developer Mode →
+              Copy User ID) — not a secret and not a token.
+            </li>
+            <li>
+              Only open this form from the pinned link in
+              <strong>#staff-applications</strong>. If someone DMs you a “staff
+              app” link, ignore it.
+            </li>
+          </ul>
+          <p class="verify" id="hostVerify">Checking page source…</p>
+        </div>
+      </header>
+
+      <div class="panel" id="app">
+        <details class="setup" id="setupPanel" hidden>
+          <summary>Owner setup (Vercel)</summary>
+          <div class="setup-body">
+            <p class="setup-hint">
+              Deploy this folder on Vercel with Root Directory
+              <code>docs/staff-application</code>. Set project env
+              <code>DISCORD_WEBHOOK</code> to your Application Logs webhook
+              (server-side only — not in the browser). Pin the
+              <code>*.vercel.app</code> URL in Discord
+              <code>#staff-applications</code>.
+            </p>
+          </div>
+        </details>
+
+        <div class="progress" aria-hidden="true">
+          <span data-step-bar="0" data-on="1"></span>
+          <span data-step-bar="1"></span>
+          <span data-step-bar="2"></span>
+          <span data-step-bar="3"></span>
+        </div>
+        <div class="step-label" id="stepLabel">Step 1 of 4 — Identity</div>
+
+        <form id="staffForm" novalidate>
+          <!-- Step 1 -->
+          <section class="step active" data-step="0">
+            <p class="req">
+              <strong>Requirements:</strong> 15+, Discord account 30+ days,
+              active here 2+ weeks, ~5+ hours/week, no recent serious
+              punishments. Dishonest answers = instant deny.
+            </p>
+
+            <label class="field">
+              <span>Discord username <em>*</em></span>
+              <input name="discordUsername" type="text" required maxlength="64" autocomplete="nickname" />
+            </label>
+
+            <label class="field">
+              <span>Discord user ID <em>*</em></span>
+              <input
+                name="discordId"
+                type="text"
+                required
+                inputmode="numeric"
+                pattern="[0-9]{15,22}"
+                placeholder="Numbers only — e.g. 123456789012345678"
+                maxlength="22"
+                autocomplete="off"
+              />
+              <p class="hint">
+                Settings → Advanced → Developer Mode → right-click your profile →
+                Copy User ID. Digits only. Never paste a token or password here.
+              </p>
+            </label>
+
+            <label class="field">
+              <span>playvortex.io username</span>
+              <input name="playvortex" type="text" maxlength="64" />
+            </label>
+
+            <fieldset class="field" style="border: 0; padding: 0; margin: 0">
+              <legend style="font-size: 0.92rem; font-weight: 600; margin-bottom: 0.35rem">
+                Age confirmation <em style="color: var(--bad); font-style: normal">*</em>
+              </legend>
+              <div class="choices">
+                <label class="choice"
+                  ><input type="radio" name="ageOk" value="15+" required />
+                  I am 15 or older</label
+                >
+                <label class="choice"
+                  ><input type="radio" name="ageOk" value="under15" />
+                  I am under 15</label
+                >
+              </div>
+            </fieldset>
+
+            <label class="field">
+              <span>Timezone <em>*</em></span>
+              <input name="timezone" type="text" required placeholder="e.g. UTC+1, EST" maxlength="40" />
+            </label>
+
+            <label class="field">
+              <span>Hours available per week <em>*</em></span>
+              <select name="hours" required>
+                <option value="">Select…</option>
+                <option>1–4</option>
+                <option>5–9</option>
+                <option>10–15</option>
+                <option>15+</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Preferred contact <em>*</em></span>
+              <select name="contact" required>
+                <option value="">Select…</option>
+                <option>Discord DMs</option>
+                <option>Server ticket</option>
+                <option>Either</option>
+              </select>
+            </label>
+          </section>
+
+          <!-- Step 2 -->
+          <section class="step" data-step="1">
+            <label class="field">
+              <span>How long have you been in this Discord? <em>*</em></span>
+              <select name="tenure" required>
+                <option value="">Select…</option>
+                <option>Under 2 weeks</option>
+                <option>2–4 weeks</option>
+                <option>1–3 months</option>
+                <option>3+ months</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Prior mod / community experience <em>*</em></span>
+              <textarea
+                name="experience"
+                required
+                maxlength="2000"
+                placeholder="Discord servers, games, forums — what did you do?"
+              ></textarea>
+            </label>
+
+            <label class="field">
+              <span>Other communities you’re staff in now</span>
+              <input name="otherStaff" type="text" maxlength="200" />
+            </label>
+
+            <label class="field">
+              <span>Bans, mutes, or warnings (here or playvortex)? <em>*</em></span>
+              <textarea
+                name="history"
+                required
+                maxlength="2000"
+                placeholder="Write “None” if clean — honesty matters more than a perfect record."
+              ></textarea>
+            </label>
+          </section>
+
+          <!-- Step 3 -->
+          <section class="step" data-step="2">
+            <p class="req">Scenario answers are scored hardest. Be specific.</p>
+
+            <label class="field">
+              <span>Spam invite links in general — your steps? <em>*</em></span>
+              <textarea name="qSpam" required maxlength="2000"></textarea>
+            </label>
+
+            <label class="field">
+              <span>Friend DMs you to ban someone “for being toxic” — handle it? <em>*</em></span>
+              <textarea name="qDrama" required maxlength="2000"></textarea>
+            </label>
+
+            <label class="field">
+              <span>User claims staff abused powers; you weren’t there — process? <em>*</em></span>
+              <textarea name="qAbuse" required maxlength="2000"></textarea>
+            </label>
+
+            <label class="field">
+              <span>Raid (mass joins + spam) — first 5 actions? <em>*</em></span>
+              <textarea name="qRaid" required maxlength="2000"></textarea>
+            </label>
+
+            <label class="field">
+              <span>Your IRL friend asks you to unban their alt — what do you do? <em>*</em></span>
+              <textarea name="qFriend" required maxlength="2000"></textarea>
+            </label>
+          </section>
+
+          <!-- Step 4 -->
+          <section class="step" data-step="3">
+            <label class="field">
+              <span>Why Vortex07 staff specifically? <em>*</em></span>
+              <textarea name="why" required maxlength="2000"></textarea>
+            </label>
+
+            <label class="field">
+              <span>What would you improve about the Discord / vibe? <em>*</em></span>
+              <textarea name="improve" required maxlength="2000"></textarea>
+            </label>
+
+            <label class="field">
+              <span>Anything else we should know?</span>
+              <textarea name="extra" maxlength="2000"></textarea>
+            </label>
+
+            <p class="privacy">
+              <strong style="color: var(--ink)">What we store:</strong>
+              your answers on this form (username, public Discord ID, timezone,
+              experience, scenario replies). Used only to review staff
+              applications. Not sold. Not used to log into your Discord account.
+            </p>
+
+            <fieldset class="field" style="border: 0; padding: 0; margin: 0">
+              <legend style="font-size: 0.92rem; font-weight: 600; margin-bottom: 0.35rem">
+                Agreement <em style="color: var(--bad); font-style: normal">*</em>
+              </legend>
+              <div class="choices">
+                <label class="choice"
+                  ><input type="checkbox" name="agreeLeak" value="yes" required />
+                  I will not leak staff chats, reports, or private user info.</label
+                >
+                <label class="choice"
+                  ><input type="checkbox" name="agreeTrial" value="yes" required />
+                  I understand Trial Mod comes first; Admin is not from this form.</label
+                >
+                <label class="choice"
+                  ><input type="checkbox" name="agreeRules" value="yes" required />
+                  I will follow staff rules and escalate when unsure.</label
+                >
+                <label class="choice"
+                  ><input type="checkbox" name="agreeHonest" value="yes" required />
+                  My answers are honest.</label
+                >
+                <label class="choice"
+                  ><input type="checkbox" name="agreeSafety" value="yes" required />
+                  I confirm nobody asked me for a Discord password or token for this application.</label
+                >
+              </div>
+            </fieldset>
+          </section>
+
+          <div class="nav">
+            <button type="button" class="btn-secondary" id="prevBtn" hidden>
+              Back
+            </button>
+            <button type="button" class="btn-primary" id="nextBtn">Continue</button>
+            <button type="submit" class="btn-primary" id="submitBtn" hidden>
+              Submit application
+            </button>
+          </div>
+          <p class="status" id="formStatus" role="status"></p>
+        </form>
+
+        <div class="done" id="donePanel">
+          <h2>Application sent</h2>
+          <p id="doneText">
+            Thanks — we’ll review within 7–14 days. Don’t DM staff unless we
+            contact you.
+          </p>
+        </div>
+      </div>
+
+      <p class="foot">
+        Vortex07 community · Trial Moderator applications<br />
+        <span id="footMeta"
+          >Official form — never enter passwords or tokens</span
+        >
+      </p>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
