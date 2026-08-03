@@ -3,7 +3,7 @@
     OFFICIAL_INVITE: "https://discord.gg/QYZS9zdeMr",
     STAFF_CHANNEL: "#staff-apps",
     // After deploy, add your production host(s), e.g. "v07-staff.vercel.app"
-    EXPECTED_HOSTS: ["localhost", "127.0.0.1"],
+    EXPECTED_HOSTS: ["localhost", "127.0.0.1", "v07-mod-apps.vercel.app"],
     ALLOW_VERCEL_APP: true,
   };
 
