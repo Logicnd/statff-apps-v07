@@ -8,7 +8,7 @@ Scam forms ask for **secrets** and hide on **weird domains**. Your form should d
 - User ID (digits) is fine — it’s public
 - Username is fine
 - No URL shorteners (bit.ly etc.) in Discord announcements
-- No “DM me the form” from random accounts — pin one link in `#staff-applications`
+- No “DM me the form” from random accounts — pin one link in `#staff-apps`
 
 ## Hosting = most of the trust
 
@@ -16,7 +16,7 @@ Scam forms ask for **secrets** and hide on **weird domains**. Your form should d
 |------|-----|
 | Your `*.vercel.app` (or custom domain) with HTTPS | Random free host with 12 hyphens |
 | Webhook only in Vercel env `DISCORD_WEBHOOK` | Webhook pasted into client JS |
-| Pin the exact URL in `#staff-applications` | Discord attachment HTML / shorteners |
+| Pin the exact URL in `#staff-apps` | Discord attachment HTML / shorteners |
 | Same brand people already know (Vortex07) | “nitro-staff-apply-free.com” |
 
 After deploy, optionally lock hosts in `app.js`:
@@ -30,7 +30,7 @@ This project lives at `Desktop/Websites/staff-apps` (separate from the Vortex07 
 
 ## Discord-side trust
 
-In `#staff-applications`, pin:
+In `#staff-apps`, pin:
 
 1. The **exact** HTTPS URL (no shortener)
 2. “We never ask for passwords/tokens”

@@ -451,7 +451,7 @@
             </li>
             <li>
               Only open this form from the pinned link in
-              <strong>#staff-applications</strong>. If someone DMs you a “staff
+              <strong>#staff-apps</strong>. If someone DMs you a “staff
               app” link, ignore it.
             </li>
           </ul>
@@ -469,7 +469,7 @@
               <code>DISCORD_WEBHOOK</code> to your Application Logs webhook
               (server-side only — not in the browser). Pin the
               <code>*.vercel.app</code> URL in Discord
-              <code>#staff-applications</code>.
+              <code>#staff-apps</code>.
             </p>
           </div>
         </details>
@@ -552,13 +552,7 @@
             </label>
 
             <label class="field">
-              <span>Preferred contact <em>*</em></span>
-              <select name="contact" required>
-                <option value="">Select…</option>
-                <option>Discord DMs</option>
-                <option>Server ticket</option>
-                <option>Either</option>
-              </select>
+              <input type="hidden" name="contact" value="Discord DMs" />
             </label>
           </section>
 

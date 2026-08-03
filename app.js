@@ -1,7 +1,7 @@
 (() => {
   const CONFIG = {
     OFFICIAL_INVITE: "https://discord.gg/QYZS9zdeMr",
-    STAFF_CHANNEL: "#staff-applications",
+    STAFF_CHANNEL: "#staff-apps",
     // After deploy, add your production host(s), e.g. "v07-staff.vercel.app"
     EXPECTED_HOSTS: ["localhost", "127.0.0.1"],
     ALLOW_VERCEL_APP: true,
@@ -34,7 +34,7 @@
   function verifyHost() {
     const host = location.hostname || "(local file)";
     const invite = CONFIG.OFFICIAL_INVITE || "";
-    const channel = CONFIG.STAFF_CHANNEL || "#staff-applications";
+    const channel = CONFIG.STAFF_CHANNEL || "#staff-apps";
 
     if (location.protocol === "file:") {
       hostVerify.textContent =
