@@ -1,39 +1,46 @@
 # Vortex07 Staff Applications
 
-Form → compact Discord **embeds** in Application Logs.  
-Optional **buttons** (Interview / Reviewing / Hold / Deny) via a Discord bot.
+One big Discord **embed** + **Interview / Reviewing / Hold / Deny** buttons.
 
 ## Deploy
 
 1. Import [statff-apps-v07](https://github.com/Logicnd/statff-apps-v07) on Vercel  
-2. Framework: **Other** · root = `/`  
-3. Env vars (below) → Deploy  
+2. Set env vars → Deploy  
+3. Interactions URL: `https://YOUR-DEPLOY.vercel.app/api/interactions`
 
-## Environment
+## Env
 
-| Variable | Required | Purpose |
-|----------|----------|---------|
-| `DISCORD_WEBHOOK` | Yes* | Posts embed to Application Logs |
-| `DISCORD_BOT_TOKEN` | For buttons | Bot posts the message with components |
-| `DISCORD_CHANNEL_ID` | For buttons | Application Logs channel snowflake |
-| `DISCORD_PUBLIC_KEY` | For buttons | Verify button clicks at `/api/interactions` |
+| Variable | Purpose |
+|----------|---------|
+| `DISCORD_WEBHOOK` | Fallback post target |
+| `DISCORD_BOT_TOKEN` | Buttons + `/staff-test` |
+| `DISCORD_CHANNEL_ID` | Application Logs channel |
+| `DISCORD_PUBLIC_KEY` | Verify interactions |
+| `DISCORD_APP_ID` | Register slash commands |
+| `DISCORD_GUILD_ID` | Instant guild command register |
+| `TEST_EMBED_SECRET` | Protect `/api/test-embed` |
 
-\*If bot token + channel id are both set, webhook is optional.
+## Test the embed
 
-### Buttons setup (once)
-
-1. [Discord Developer Portal](https://discord.com/developers/applications) → New Application (or existing) → **Bot** → Reset Token → copy into `DISCORD_BOT_TOKEN`  
-2. OAuth2 → URL Generator → scopes `bot` → permission **Send Messages** → invite to your server  
-3. Enable Developer Mode in Discord → right-click Application Logs channel → **Copy Channel ID** → `DISCORD_CHANNEL_ID`  
-4. App → **General Information** → copy **Public Key** → `DISCORD_PUBLIC_KEY`  
-5. Same page → **Interactions Endpoint URL** = `https://YOUR-DEPLOY.vercel.app/api/interactions` → Save  
-6. Redeploy Vercel after env vars are set  
-
-Without the bot vars you still get the clean embed via webhook (buttons need the bot).
-
-## Local
+**Slash command** (after register):
 
 ```bash
-cd ~/Desktop/Websites/staff-apps
-npx vercel dev
+DISCORD_BOT_TOKEN=... DISCORD_APP_ID=... DISCORD_GUILD_ID=... node scripts/register-commands.js
 ```
+
+Then in Discord: `/staff-test` → posts a sample embed with buttons to Application Logs.
+
+**HTTP** (after setting `TEST_EMBED_SECRET`):
+
+```text
+https://YOUR-DEPLOY.vercel.app/api/test-embed?key=YOUR_SECRET
+```
+
+## Buttons setup
+
+1. Discord app → Bot → token → `DISCORD_BOT_TOKEN`  
+2. Invite bot (Send Messages)  
+3. Copy Application Logs channel ID → `DISCORD_CHANNEL_ID`  
+4. Public Key → `DISCORD_PUBLIC_KEY`  
+5. Interactions Endpoint URL → `/api/interactions`  
+6. Register `/staff-test` with the script above  

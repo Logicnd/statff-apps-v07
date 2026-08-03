@@ -1,15 +1,19 @@
 /**
- * Discord Interactions endpoint (button clicks).
+ * Discord Interactions — buttons + /staff-test slash command.
  *
- * Discord Developer Portal → your app → Interactions Endpoint URL:
+ * Interactions Endpoint URL:
  *   https://YOUR-DEPLOY.vercel.app/api/interactions
  *
- * Env:
- *   DISCORD_PUBLIC_KEY — application public key (hex)
+ * Env: DISCORD_PUBLIC_KEY, DISCORD_BOT_TOKEN, DISCORD_CHANNEL_ID (for /staff-test)
  */
 
 const { webcrypto } = require("crypto");
-const { actionRows, STATUS_LABEL } = require("../lib/discord");
+const {
+  actionRows,
+  STATUS_LABEL,
+  sampleApplication,
+  messagePayload,
+} = require("../lib/discord");
 
 module.exports.config = {
   api: {
@@ -55,7 +59,6 @@ function statusFromCustomId(customId) {
   return null;
 }
 
-/** Rebuild embeds from the message, only updating color/footer status. */
 function restyleEmbeds(embeds, status, reviewerTag) {
   const colorMap = {
     new: 0x6db3e0,
@@ -68,15 +71,54 @@ function restyleEmbeds(embeds, status, reviewerTag) {
   const label = STATUS_LABEL[status] || status;
   const who = reviewerTag ? ` by ${reviewerTag}` : "";
 
-  return (embeds || []).map((embed, i) => {
-    const next = { ...embed, color };
-    if (i === 0) {
-      next.footer = {
-        text: `Status · ${label}${who}`,
-      };
+  return (embeds || []).map((embed) => ({
+    ...embed,
+    color,
+    footer: { text: `Status · ${label}${who} · #staff-apps` },
+  }));
+}
+
+async function postToLogsChannel(payload) {
+  const token = String(process.env.DISCORD_BOT_TOKEN || "").trim();
+  const channelId = String(process.env.DISCORD_CHANNEL_ID || "").trim();
+  const webhook = String(process.env.DISCORD_WEBHOOK || "").trim();
+
+  if (token && channelId) {
+    const res = await fetch(
+      `https://discord.com/api/v10/channels/${channelId}/messages`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bot ${token}`,
+        },
+        body: JSON.stringify(payload),
+      },
+    );
+    return res.ok;
+  }
+
+  if (webhook) {
+    const url = webhook.includes("?")
+      ? `${webhook}&wait=true`
+      : `${webhook}?wait=true`;
+    let res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const { components: _c, ...noButtons } = payload;
+      res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(noButtons),
+      });
     }
-    return next;
-  });
+    return res.ok;
+  }
+
+  return false;
 }
 
 module.exports = async function handler(req, res) {
@@ -115,7 +157,30 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ type: 1 });
   }
 
-  // MESSAGE_COMPONENT
+  // APPLICATION_COMMAND — /staff-test
+  if (interaction.type === 2) {
+    const name = interaction.data?.name;
+    if (name === "staff-test") {
+      const payload = messagePayload(sampleApplication(), "new");
+      const ok = await postToLogsChannel(payload);
+      return res.status(200).json({
+        type: 4,
+        data: {
+          content: ok
+            ? "✅ Test embed posted to Application Logs (with buttons if bot is configured)."
+            : "❌ Couldn’t post — set DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID (or DISCORD_WEBHOOK).",
+          flags: 64, // ephemeral
+        },
+      });
+    }
+
+    return res.status(200).json({
+      type: 4,
+      data: { content: "Unknown command.", flags: 64 },
+    });
+  }
+
+  // MESSAGE_COMPONENT — buttons
   if (interaction.type === 3) {
     const status = statusFromCustomId(interaction.data?.custom_id);
     if (!status) {
@@ -125,17 +190,12 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    const user =
-      interaction.member?.user || interaction.user || {};
+    const user = interaction.member?.user || interaction.user || {};
     const tag = user.global_name || user.username || "staff";
-    const embeds = restyleEmbeds(
-      interaction.message?.embeds,
-      status,
-      tag,
-    );
+    const embeds = restyleEmbeds(interaction.message?.embeds, status, tag);
 
     return res.status(200).json({
-      type: 7, // UPDATE_MESSAGE
+      type: 7,
       data: {
         embeds,
         components: actionRows(status, true),

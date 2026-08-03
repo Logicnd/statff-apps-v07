@@ -7,11 +7,7 @@
  *   DISCORD_CHANNEL_ID       — required with bot token (Application Logs channel)
  */
 
-const {
-  buildApplicationEmbeds,
-  actionRows,
-  parseApplication,
-} = require("../lib/discord");
+const { messagePayload, parseApplication } = require("../lib/discord");
 
 async function postWebhook(webhook, payload) {
   const url = webhook.includes("?")
@@ -90,19 +86,12 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ ok: false, error: "invalid-application" });
   }
 
-  const embeds = buildApplicationEmbeds(app, "new");
-  const components = actionRows("new", false);
-  const basePayload = {
-    embeds,
-    allowed_mentions: { parse: [] },
-  };
+  const payload = messagePayload(app, "new");
+  const { components: _components, ...embedOnly } = payload;
 
   try {
     if (botToken && channelId) {
-      const result = await postBotMessage(botToken, channelId, {
-        ...basePayload,
-        components,
-      });
+      const result = await postBotMessage(botToken, channelId, payload);
       if (!result.ok) {
         return res.status(502).json({
           ok: false,
@@ -115,9 +104,9 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ ok: true, mode: "bot" });
     }
 
-    let result = await postWebhook(webhook, { ...basePayload, components });
+    let result = await postWebhook(webhook, payload);
     if (!result.ok) {
-      result = await postWebhook(webhook, basePayload);
+      result = await postWebhook(webhook, embedOnly);
     }
     if (!result.ok) {
       return res.status(502).json({
