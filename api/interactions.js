@@ -157,10 +157,10 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ type: 1 });
   }
 
-  // APPLICATION_COMMAND — /staff-test
+  // APPLICATION_COMMAND — /staff (test embed)
   if (interaction.type === 2) {
     const name = interaction.data?.name;
-    if (name === "staff-test") {
+    if (name === "staff" || name === "staff-test") {
       const payload = messagePayload(sampleApplication(), "new");
       const ok = await postToLogsChannel(payload);
       return res.status(200).json({

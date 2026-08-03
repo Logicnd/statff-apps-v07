@@ -1,9 +1,9 @@
 /**
- * Registers /staff-test with Discord (guild or global).
+ * Registers /staff with Discord (guild = instant).
  *
  *   DISCORD_BOT_TOKEN=... DISCORD_APP_ID=... DISCORD_GUILD_ID=... node scripts/register-commands.js
  *
- * Guild register = instant. Omit DISCORD_GUILD_ID for global (can take up to 1h).
+ * Or hit: GET /api/register-commands?key=TEST_EMBED_SECRET (after deploy)
  */
 
 const token = String(process.env.DISCORD_BOT_TOKEN || "").trim();
@@ -17,7 +17,7 @@ if (!token || !appId) {
 
 const commands = [
   {
-    name: "staff-test",
+    name: "staff",
     description: "Post a sample staff-application embed (with buttons) to Application Logs",
     type: 1,
   },
@@ -41,7 +41,7 @@ fetch(url, {
       console.error(res.status, text);
       process.exit(1);
     }
-    console.log("Registered commands:", text);
+    console.log("Registered /staff:", text);
   })
   .catch((err) => {
     console.error(err);

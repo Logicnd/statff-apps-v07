@@ -22,19 +22,21 @@ One big Discord **embed** + **Interview / Reviewing / Hold / Deny** buttons.
 
 ## Test the embed
 
-**Slash command** (after register):
+After env vars are on Vercel + Interactions URL is saved, open:
+
+```text
+https://YOUR-DEPLOY.vercel.app/api/register-commands?key=YOUR_TEST_EMBED_SECRET
+```
+
+Then in Discord type **`/staff`** — it posts a sample embed + buttons to Application Logs.
+
+Or:
 
 ```bash
 DISCORD_BOT_TOKEN=... DISCORD_APP_ID=... DISCORD_GUILD_ID=... node scripts/register-commands.js
 ```
 
-Then in Discord: `/staff-test` → posts a sample embed with buttons to Application Logs.
-
-**HTTP** (after setting `TEST_EMBED_SECRET`):
-
-```text
-https://YOUR-DEPLOY.vercel.app/api/test-embed?key=YOUR_SECRET
-```
+HTTP fallback: `/api/test-embed?key=YOUR_SECRET`
 
 ## Buttons setup
 
