@@ -1,21 +1,57 @@
 /**
- * Vercel serverless — posts staff apps to Discord.
- * Set env DISCORD_WEBHOOK in the Vercel project (never commit the URL).
+ * Posts a compact Discord embed (+ buttons when a bot token is configured).
+ *
+ * Env:
+ *   DISCORD_WEBHOOK          — required unless bot path is fully set
+ *   DISCORD_BOT_TOKEN        — optional; enables real interactive buttons
+ *   DISCORD_CHANNEL_ID       — required with bot token (Application Logs channel)
  */
 
-function chunkContent(content, max = 1900) {
-  const chunks = [];
-  let buf = "";
-  for (const line of String(content || "").split("\n")) {
-    if ((buf + "\n" + line).length > max) {
-      if (buf) chunks.push(buf);
-      buf = line;
-    } else {
-      buf = buf ? `${buf}\n${line}` : line;
-    }
+const {
+  buildApplicationEmbeds,
+  actionRows,
+  parseApplication,
+} = require("../lib/discord");
+
+async function postWebhook(webhook, payload) {
+  const url = webhook.includes("?")
+    ? `${webhook}&wait=true`
+    : `${webhook}?wait=true`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const text = await res.text().catch(() => "");
+  let data = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = { raw: text };
   }
-  if (buf) chunks.push(buf);
-  return chunks;
+  return { ok: res.ok, status: res.status, data };
+}
+
+async function postBotMessage(token, channelId, payload) {
+  const res = await fetch(
+    `https://discord.com/api/v10/channels/${channelId}/messages`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bot ${token}`,
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+  const text = await res.text().catch(() => "");
+  let data = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = { raw: text };
+  }
+  return { ok: res.ok, status: res.status, data };
 }
 
 module.exports = async function handler(req, res) {
@@ -23,20 +59,20 @@ module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
-  }
-
+  if (req.method === "OPTIONS") return res.status(204).end();
   if (req.method !== "POST") {
     return res.status(405).json({ ok: false, error: "method-not-allowed" });
   }
 
   const webhook = String(process.env.DISCORD_WEBHOOK || "").trim();
-  if (!webhook) {
+  const botToken = String(process.env.DISCORD_BOT_TOKEN || "").trim();
+  const channelId = String(process.env.DISCORD_CHANNEL_ID || "").trim();
+
+  if (!webhook && !(botToken && channelId)) {
     return res.status(500).json({
       ok: false,
-      error: "webhook-missing",
-      hint: "Set DISCORD_WEBHOOK in Vercel project env vars.",
+      error: "discord-not-configured",
+      hint: "Set DISCORD_WEBHOOK, or DISCORD_BOT_TOKEN + DISCORD_CHANNEL_ID.",
     });
   }
 
@@ -49,31 +85,54 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  const content = String(body?.content || "").trim();
-  if (content.length < 40) {
-    return res.status(400).json({ ok: false, error: "empty-application" });
-  }
-  if (content.length > 20000) {
-    return res.status(400).json({ ok: false, error: "too-large" });
+  const app = parseApplication(body);
+  if (!app?.discordUsername || !app?.discordId) {
+    return res.status(400).json({ ok: false, error: "invalid-application" });
   }
 
+  const embeds = buildApplicationEmbeds(app, "new");
+  const components = actionRows("new", false);
+  const basePayload = {
+    embeds,
+    allowed_mentions: { parse: [] },
+  };
+
   try {
-    for (const chunk of chunkContent(content)) {
-      const discordRes = await fetch(webhook, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: chunk }),
+    if (botToken && channelId) {
+      const result = await postBotMessage(botToken, channelId, {
+        ...basePayload,
+        components,
       });
-      if (!discordRes.ok) {
-        const detail = await discordRes.text().catch(() => "");
+      if (!result.ok) {
         return res.status(502).json({
           ok: false,
-          error: `discord-${discordRes.status}`,
-          detail: String(detail || "").slice(0, 200),
+          error: `discord-${result.status}`,
+          detail: String(
+            result.data?.message || JSON.stringify(result.data) || "",
+          ).slice(0, 200),
         });
       }
+      return res.status(200).json({ ok: true, mode: "bot" });
     }
-    return res.status(200).json({ ok: true });
+
+    let result = await postWebhook(webhook, { ...basePayload, components });
+    if (!result.ok) {
+      result = await postWebhook(webhook, basePayload);
+    }
+    if (!result.ok) {
+      return res.status(502).json({
+        ok: false,
+        error: `discord-${result.status}`,
+        detail: String(
+          result.data?.message || JSON.stringify(result.data) || "",
+        ).slice(0, 200),
+      });
+    }
+    return res.status(200).json({
+      ok: true,
+      mode: "webhook",
+      buttons: Boolean(result.data?.components?.length),
+    });
   } catch (err) {
     return res.status(502).json({
       ok: false,

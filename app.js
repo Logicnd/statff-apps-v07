@@ -109,49 +109,6 @@
     return o;
   }
 
-  function formatDiscord(data) {
-    return [
-      "📥 **New Vortex07 staff application**",
-      `**Discord:** ${data.discordUsername} (\`${data.discordId}\`)`,
-      `**playvortex:** ${data.playvortex || "—"}`,
-      `**Timezone:** ${data.timezone} · **Hours/week:** ${data.hours}`,
-      `**Contact:** ${data.contact} · **In server:** ${data.tenure}`,
-      `**Age:** ${data.ageOk}`,
-      "",
-      "**Experience**",
-      data.experience,
-      "",
-      "**Other staff roles:** " + (data.otherStaff || "—"),
-      "**History:** " + data.history,
-      "",
-      "**Q — Spam invites**",
-      data.qSpam,
-      "",
-      "**Q — Ban request from friend**",
-      data.qDrama,
-      "",
-      "**Q — Staff abuse claim**",
-      data.qAbuse,
-      "",
-      "**Q — Raid**",
-      data.qRaid,
-      "",
-      "**Q — Friend unban**",
-      data.qFriend,
-      "",
-      "**Why Vortex07**",
-      data.why,
-      "",
-      "**Improvements**",
-      data.improve,
-      "",
-      "**Extra:** " + (data.extra || "—"),
-      "",
-      `Submitted: ${data.submittedAt}`,
-      "Status: New — react ✅ interview · ❌ deny · ⏳ hold · 👀 reviewing",
-    ].join("\n");
-  }
-
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!validateStep(step)) return;
@@ -171,7 +128,7 @@
       const res = await fetch("/api/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: formatDiscord(data) }),
+        body: JSON.stringify({ application: data }),
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok || !payload.ok) {
